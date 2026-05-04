@@ -3,7 +3,7 @@ const testing = std.testing;
 
 // Test JSON serialization with structures
 test "json value serialization" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.DebugAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
@@ -20,7 +20,7 @@ test "json value serialization" {
     };
 
     // Serialize to string
-    var list: std.ArrayListUnmanaged(u8) = .{};
+    var list: std.ArrayListUnmanaged(u8) = .empty;
     defer list.deinit(allocator);
 
     try std.json.stringify(obj, .{}, list.writer(allocator));
@@ -37,7 +37,7 @@ test "json value serialization" {
 
 // Test nested JSON structure
 test "nested json structure" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.DebugAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
@@ -61,7 +61,7 @@ test "nested json structure" {
     };
 
     // Serialize
-    var list: std.ArrayListUnmanaged(u8) = .{};
+    var list: std.ArrayListUnmanaged(u8) = .empty;
     defer list.deinit(allocator);
 
     try std.json.stringify(root, .{}, list.writer(allocator));
@@ -76,7 +76,7 @@ test "nested json structure" {
 
 // Test string escaping
 test "json string escaping" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.DebugAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
@@ -88,7 +88,7 @@ test "json string escaping" {
         .text = "Line 1\nLine 2\t\"quoted\"",
     };
 
-    var list: std.ArrayListUnmanaged(u8) = .{};
+    var list: std.ArrayListUnmanaged(u8) = .empty;
     defer list.deinit(allocator);
 
     try std.json.stringify(obj, .{}, list.writer(allocator));
@@ -105,7 +105,7 @@ test "json string escaping" {
 
 // Test manual JSON writing (like our implementation)
 test "manual json writing" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.DebugAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 

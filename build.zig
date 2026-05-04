@@ -22,7 +22,7 @@ fn buildForTarget(
         }),
     });
 
-    lib.linkLibC();
+    lib.root_module.link_libc = true;
 
     const flags = &[_][]const u8{
         "-O2",
@@ -31,20 +31,20 @@ fn buildForTarget(
         "-DMD4C_USE_UTF8",
     };
 
-    lib.addCSourceFile(.{
+    lib.root_module.addCSourceFile(.{
         .file = b.path("vendor/md4c/src/md4c.c"),
         .flags = flags,
     });
-    lib.addCSourceFile(.{
+    lib.root_module.addCSourceFile(.{
         .file = b.path("vendor/md4c/src/md4c-html.c"),
         .flags = flags,
     });
-    lib.addCSourceFile(.{
+    lib.root_module.addCSourceFile(.{
         .file = b.path("vendor/md4c/src/entity.c"),
         .flags = flags,
     });
 
-    lib.addIncludePath(b.path("vendor/md4c/src"));
+    lib.root_module.addIncludePath(b.path("vendor/md4c/src"));
 
     const install = b.addInstallArtifact(lib, .{});
 
@@ -79,7 +79,7 @@ pub fn build(b: *std.Build) void {
         b.default_step.dependOn(&json_step.step);
     } else {
         const target = b.standardTargetOptions(.{});
-        
+
         const lib = b.addLibrary(.{
             .name = "md4c",
             .linkage = .dynamic,
@@ -90,29 +90,24 @@ pub fn build(b: *std.Build) void {
             }),
         });
 
-        lib.linkLibC();
-        
-        const flags = &[_][]const u8{
-            "-O2",
-            "-fPIC",
-            "-fvisibility=hidden", 
-            "-DMD4C_USE_UTF8"
-        };
+        lib.root_module.link_libc = true;
 
-        lib.addCSourceFile(.{
+        const flags = &[_][]const u8{ "-O2", "-fPIC", "-fvisibility=hidden", "-DMD4C_USE_UTF8" };
+
+        lib.root_module.addCSourceFile(.{
             .file = b.path("vendor/md4c/src/md4c.c"),
             .flags = flags,
         });
-        lib.addCSourceFile(.{
+        lib.root_module.addCSourceFile(.{
             .file = b.path("vendor/md4c/src/md4c-html.c"),
             .flags = flags,
         });
-        lib.addCSourceFile(.{
+        lib.root_module.addCSourceFile(.{
             .file = b.path("vendor/md4c/src/entity.c"),
             .flags = flags,
         });
-        
-        lib.addIncludePath(b.path("vendor/md4c/src"));
+
+        lib.root_module.addIncludePath(b.path("vendor/md4c/src"));
 
         b.installArtifact(lib);
     }

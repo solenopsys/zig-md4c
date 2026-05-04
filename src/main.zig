@@ -27,7 +27,7 @@ fn html_process_output(data: [*c]const u8, size: c.MD_SIZE, userdata: ?*anyopaqu
 
 export fn md4c_to_html(input: [*]const u8, input_len: usize, output_ptr: *?[*]u8, output_len: *usize, parser_flags: u32, renderer_flags: u32) c_int {
     var ctx = HtmlContext{
-        .list = .{},
+        .list = .empty,
         .failed = false,
     };
 
@@ -75,14 +75,14 @@ const JsonNode = struct {
     type_name: []const u8,
     text: ?[]const u8 = null,
     children: std.ArrayListUnmanaged(*JsonNode),
-    details: std.ArrayListUnmanaged(DetailEntry) = .{},
+    details: std.ArrayListUnmanaged(DetailEntry) = .empty,
 
     pub fn init(allocator: std.mem.Allocator, node_type: JsonNodeType, type_name: []const u8) !*JsonNode {
         const node = try allocator.create(JsonNode);
         node.* = .{
             .node_type = node_type,
             .type_name = type_name,
-            .children = .{},
+            .children = .empty,
         };
         return node;
     }
@@ -395,7 +395,7 @@ export fn md4c_to_json(input: [*]const u8, input_len: usize, output_ptr: *?[*]u8
     var ctx = JsonContext{
         .allocator = allocator,
         .root = root,
-        .stack = .{},
+        .stack = .empty,
         .failed = false,
     };
     ctx.stack.append(allocator, root) catch return -1;
@@ -419,15 +419,15 @@ export fn md4c_to_json(input: [*]const u8, input_len: usize, output_ptr: *?[*]u8
     }
 
     // Serialize to string
-    var json_list: std.ArrayListUnmanaged(u8) = .{};
-    defer json_list.deinit(c_allocator);
+    var json_list: std.Io.Writer.Allocating = .init(c_allocator);
+    defer json_list.deinit();
 
     // We only want children of root
-    json_stringify_node(c_allocator, ctx.root, json_list.writer(c_allocator)) catch {
+    json_stringify_node(c_allocator, ctx.root, &json_list.writer) catch {
         return -1;
     };
 
-    const slice = json_list.toOwnedSlice(c_allocator) catch {
+    const slice = json_list.toOwnedSlice() catch {
         return -1;
     };
     output_ptr.* = slice.ptr;
