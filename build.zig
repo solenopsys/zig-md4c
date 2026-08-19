@@ -32,19 +32,19 @@ fn buildForTarget(
     };
 
     lib.root_module.addCSourceFile(.{
-        .file = b.path("vendor/md4c/src/md4c.c"),
+        .file = b.path("vendor/md4c-vendor/src/md4c.c"),
         .flags = flags,
     });
     lib.root_module.addCSourceFile(.{
-        .file = b.path("vendor/md4c/src/md4c-html.c"),
+        .file = b.path("vendor/md4c-vendor/src/md4c-html.c"),
         .flags = flags,
     });
     lib.root_module.addCSourceFile(.{
-        .file = b.path("vendor/md4c/src/entity.c"),
+        .file = b.path("vendor/md4c-vendor/src/entity.c"),
         .flags = flags,
     });
 
-    lib.root_module.addIncludePath(b.path("vendor/md4c/src"));
+    lib.root_module.addIncludePath(b.path("vendor/md4c-vendor/src"));
 
     const install = b.addInstallArtifact(lib, .{});
 
@@ -95,19 +95,19 @@ pub fn build(b: *std.Build) void {
         const flags = &[_][]const u8{ "-O2", "-fPIC", "-fvisibility=hidden", "-DMD4C_USE_UTF8" };
 
         lib.root_module.addCSourceFile(.{
-            .file = b.path("vendor/md4c/src/md4c.c"),
+            .file = b.path("vendor/md4c-vendor/src/md4c.c"),
             .flags = flags,
         });
         lib.root_module.addCSourceFile(.{
-            .file = b.path("vendor/md4c/src/md4c-html.c"),
+            .file = b.path("vendor/md4c-vendor/src/md4c-html.c"),
             .flags = flags,
         });
         lib.root_module.addCSourceFile(.{
-            .file = b.path("vendor/md4c/src/entity.c"),
+            .file = b.path("vendor/md4c-vendor/src/entity.c"),
             .flags = flags,
         });
 
-        lib.root_module.addIncludePath(b.path("vendor/md4c/src"));
+        lib.root_module.addIncludePath(b.path("vendor/md4c-vendor/src"));
 
         b.installArtifact(lib);
     }
