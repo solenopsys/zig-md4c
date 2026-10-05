@@ -2,10 +2,7 @@ const std = @import("std");
 
 const c_allocator = std.heap.c_allocator;
 
-const c = @cImport({
-    @cInclude("md4c.h");
-    @cInclude("md4c-html.h");
-});
+const c = @import("c");
 
 // --- HTML Rendering ---
 

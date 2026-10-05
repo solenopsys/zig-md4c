@@ -7,7 +7,7 @@ fn buildForTarget(
     optimize: std.builtin.OptimizeMode,
     artifacts_dir: []const u8,
     hashes: *std.StringHashMap([]const u8),
-    json_step: *build_utils.WriteJsonStep,
+    json_step: *std.Build.Step.Run,
 ) void {
     const target_str = build_utils.getTargetString(target);
     const lib_name = build_utils.getLibName(std.heap.page_allocator, "md4c", target_str);
@@ -23,6 +23,13 @@ fn buildForTarget(
     });
 
     lib.root_module.link_libc = true;
+    const c_headers = b.addTranslateC(.{
+        .root_source_file = b.path("src/c_imports.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+    c_headers.addIncludePath(b.path("vendor/md4c-vendor/src"));
+    lib.root_module.addImport("c", c_headers.createModule());
 
     const flags = &[_][]const u8{
         "-O2",
@@ -61,7 +68,7 @@ fn buildForTarget(
 }
 
 pub fn build(b: *std.Build) void {
-    const optimize = b.option(std.builtin.OptimizeMode, "optimize", "Prioritize performance, safety, or binary size") orelse .ReleaseFast;
+    const optimize = b.option(std.builtin.OptimizeMode, "optimize", "Prioritize performance, safety, or binary size") orelse .fast;
     const artifacts_dir = "../../artifacts/libs";
     const json_path = "current.json";
 
@@ -91,6 +98,13 @@ pub fn build(b: *std.Build) void {
         });
 
         lib.root_module.link_libc = true;
+        const c_headers = b.addTranslateC(.{
+            .root_source_file = b.path("src/c_imports.h"),
+            .target = target,
+            .optimize = optimize,
+        });
+        c_headers.addIncludePath(b.path("vendor/md4c-vendor/src"));
+        lib.root_module.addImport("c", c_headers.createModule());
 
         const flags = &[_][]const u8{ "-O2", "-fPIC", "-fvisibility=hidden", "-DMD4C_USE_UTF8" };
 
